@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ArrowRight, Search, Settings } from "lucide-react";
@@ -15,6 +16,9 @@ const Blog = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredPosts, setFilteredPosts] = useState(posts);
   const categories = getAllCategories();
+  
+  // Select the first post as the featured post
+  const featuredPost = posts[0];
 
   useEffect(() => {
     let result = posts;

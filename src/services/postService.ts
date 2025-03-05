@@ -245,8 +245,15 @@ function ensureValidUuid(id: string): string {
     return id;
   }
   
-  // For numeric IDs from local data, generate a deterministic UUID
-  return uuidv4({ random: Array.from(id.padEnd(16, '0')).map(c => c.charCodeAt(0)) });
+  // For numeric IDs from local data, generate a consistent UUID
+  // Fix for the Uint8Array type issue - create a proper array for the UUID seed
+  const seed = new Uint8Array(16);
+  const idStr = id.toString().padEnd(16, '0');
+  for (let i = 0; i < 16; i++) {
+    seed[i] = idStr.charCodeAt(Math.min(i, idStr.length - 1));
+  }
+  
+  return uuidv4({ random: seed });
 }
 
 // Simple UUID validation
