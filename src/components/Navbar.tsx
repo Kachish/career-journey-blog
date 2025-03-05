@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
+import Logo from "./Logo";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -41,13 +42,7 @@ const Navbar = () => {
       )}
     >
       <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="text-2xl font-display font-semibold tracking-tight">
-          <span className="sr-only">Career Canvas</span>
-          <div className="flex items-center">
-            <span className="text-primary">Career</span>
-            <span className="text-primary/80">Canvas</span>
-          </div>
-        </Link>
+        <Logo variant={(!isScrolled && location.pathname === "/") ? "light" : "default"} />
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-8">
@@ -58,8 +53,8 @@ const Navbar = () => {
               className={cn(
                 "link-underline text-sm font-medium transition-colors",
                 location.pathname === link.path
-                  ? "text-primary"
-                  : "text-primary/70 hover:text-primary"
+                  ? (!isScrolled && location.pathname === "/") ? "text-white" : "text-primary"
+                  : (!isScrolled && location.pathname === "/") ? "text-white/80 hover:text-white" : "text-primary/70 hover:text-primary"
               )}
             >
               {link.name}
