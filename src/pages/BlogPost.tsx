@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { ArrowLeft, Calendar, User } from "lucide-react";
@@ -8,17 +8,39 @@ import { Button } from "@/components/ui/button";
 import Layout from "@/components/Layout";
 import SocialShare from "@/components/SocialShare";
 import PostCard from "@/components/PostCard";
+import PostInteractions from "@/components/PostInteractions";
+import Comments from "@/components/Comments";
 import { getPostBySlug, getRecentPosts } from "@/data/posts";
+import { syncPostToSupabase } from "@/services/postService";
+import { toast } from "sonner";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const post = getPostBySlug(slug || "");
   const relatedPosts = getRecentPosts(3, slug);
+  const [isSyncing, setIsSyncing] = useState(true);
 
-  // Scroll to top on page load
+  // Sync post to Supabase and scroll to top on page load
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [slug]);
+    
+    if (post) {
+      // Sync the post to Supabase
+      const syncPost = async () => {
+        try {
+          await syncPostToSupabase(post);
+        } catch (error) {
+          console.error("Error syncing post to Supabase:", error);
+        } finally {
+          setIsSyncing(false);
+        }
+      };
+      
+      syncPost();
+    } else {
+      setIsSyncing(false);
+    }
+  }, [slug, post]);
 
   if (!post) {
     return (
@@ -84,10 +106,16 @@ const BlogPost = () => {
                 </div>
               </div>
               
-              <SocialShare title={post.title} />
+              <SocialShare 
+                url={window.location.href} 
+                title={post.title} 
+              />
             </div>
             
-            <div className="prose prose-lg max-w-none">
+            {/* Add Post Interactions */}
+            {!isSyncing && <PostInteractions postId={post.id} />}
+            
+            <div className="prose prose-lg max-w-none mt-8">
               <ReactMarkdown>{post.content}</ReactMarkdown>
             </div>
             
@@ -108,6 +136,9 @@ const BlogPost = () => {
                 </div>
               </div>
             </div>
+
+            {/* Add Comments Section */}
+            {!isSyncing && <Comments postId={post.id} />}
           </div>
         </div>
       </section>

@@ -9,7 +9,112 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      comments: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          name: string
+          post_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          name: string
+          post_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          name?: string
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_interactions: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string | null
+          post_id: string
+          type: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name?: string | null
+          post_id: string
+          type: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string | null
+          post_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_interactions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          author_avatar: string
+          author_name: string
+          category: string
+          content: string
+          cover_image: string
+          created_at: string | null
+          date: string | null
+          excerpt: string
+          id: string
+          slug: string
+          title: string
+        }
+        Insert: {
+          author_avatar: string
+          author_name: string
+          category: string
+          content: string
+          cover_image: string
+          created_at?: string | null
+          date?: string | null
+          excerpt: string
+          id?: string
+          slug: string
+          title: string
+        }
+        Update: {
+          author_avatar?: string
+          author_name?: string
+          category?: string
+          content?: string
+          cover_image?: string
+          created_at?: string | null
+          date?: string | null
+          excerpt?: string
+          id?: string
+          slug?: string
+          title?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
