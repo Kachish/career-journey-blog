@@ -77,10 +77,8 @@ export type Database = {
         Row: {
           author_avatar: string
           author_name: string
-          category: string
           content: string
           cover_image: string
-          created_at: string | null
           date: string | null
           excerpt: string
           id: string
@@ -90,10 +88,8 @@ export type Database = {
         Insert: {
           author_avatar: string
           author_name: string
-          category: string
           content: string
           cover_image: string
-          created_at?: string | null
           date?: string | null
           excerpt: string
           id?: string
@@ -103,10 +99,8 @@ export type Database = {
         Update: {
           author_avatar?: string
           author_name?: string
-          category?: string
           content?: string
           cover_image?: string
-          created_at?: string | null
           date?: string | null
           excerpt?: string
           id?: string
