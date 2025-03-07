@@ -19,21 +19,43 @@ const AdminLogin = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
-      toast.error("Please enter both email and password");
+    if (!email) {
+      toast.error("Please enter email");
       return;
     }
     
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // First attempt with provided password if any
+      const credentials = {
         email,
-        password: password || "Calcium@123", // Use the provided password or the default
-      });
+        password: password || "Calcium@123" // Use provided password or default
+      };
+      
+      console.log("Attempting login with credentials:", { email: credentials.email, passwordProvided: !!password });
+      
+      const { data, error } = await supabase.auth.signInWithPassword(credentials);
       
       if (error) {
-        throw error;
+        console.error("Login attempt failed:", error.message);
+        
+        // If first attempt fails and user provided a password different from default, try with default
+        if (password && password !== "Calcium@123") {
+          console.log("Attempting login with default password");
+          const fallbackResult = await supabase.auth.signInWithPassword({
+            email,
+            password: "Calcium@123"
+          });
+          
+          if (fallbackResult.error) {
+            throw fallbackResult.error;
+          }
+          
+          data.user = fallbackResult.data.user;
+        } else {
+          throw error;
+        }
       }
       
       if (data.user) {
