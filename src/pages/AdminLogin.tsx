@@ -1,7 +1,6 @@
 
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,70 +10,29 @@ import Layout from "@/components/Layout";
 import { Lock } from "lucide-react";
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState("omaryw003@gmail.com");
-  const [password, setPassword] = useState("");
+  const [pin, setPin] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email) {
-      toast.error("Please enter email");
+    if (!pin) {
+      toast.error("Please enter PIN");
       return;
     }
     
     setIsLoading(true);
     
     try {
-      // First attempt with provided password if any
-      const credentials = {
-        email,
-        password: password || "Calcium@123" // Use provided password or default
-      };
-      
-      console.log("Attempting login with credentials:", { email: credentials.email, passwordProvided: !!password });
-      
-      const { data, error } = await supabase.auth.signInWithPassword(credentials);
-      
-      if (error) {
-        console.error("Login attempt failed:", error.message);
-        
-        // If first attempt fails and user provided a password different from default, try with default
-        if (password && password !== "Calcium@123") {
-          console.log("Attempting login with default password");
-          const fallbackResult = await supabase.auth.signInWithPassword({
-            email,
-            password: "Calcium@123"
-          });
-          
-          if (fallbackResult.error) {
-            throw fallbackResult.error;
-          }
-          
-          data.user = fallbackResult.data.user;
-        } else {
-          throw error;
-        }
-      }
-      
-      if (data.user) {
-        // Check if user is admin
-        const { data: adminData, error: adminError } = await supabase
-          .rpc('is_blog_admin');
-        
-        if (adminError) {
-          throw adminError;
-        }
-        
-        if (adminData) {
-          toast.success("Login successful");
-          navigate("/blog/manage");
-        } else {
-          // Sign out if not admin
-          await supabase.auth.signOut();
-          toast.error("You do not have admin privileges");
-        }
+      // Check if PIN matches the default PIN
+      if (pin === "1352") {
+        // Store authentication in localStorage
+        localStorage.setItem("blogAdminAuthenticated", "true");
+        toast.success("Login successful");
+        navigate("/blog/manage");
+      } else {
+        toast.error("Invalid PIN");
       }
     } catch (error: any) {
       console.error("Login error:", error);
@@ -97,23 +55,14 @@ const AdminLogin = () => {
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="pin">PIN</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@example.com"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
+                  id="pin"
                   type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value)}
+                  placeholder="Enter your PIN"
+                  maxLength={4}
                 />
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>

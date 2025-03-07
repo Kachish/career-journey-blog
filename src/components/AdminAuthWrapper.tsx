@@ -1,7 +1,6 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface AdminAuthWrapperProps {
@@ -16,21 +15,10 @@ const AdminAuthWrapper = ({ children }: AdminAuthWrapperProps) => {
   useEffect(() => {
     const checkAdminStatus = async () => {
       try {
-        const { data: session } = await supabase.auth.getSession();
+        const isAuthenticated = localStorage.getItem("blogAdminAuthenticated") === "true";
         
-        if (!session.session) {
-          navigate("/admin");
-          return;
-        }
-        
-        const { data: isAdminData, error } = await supabase.rpc('is_blog_admin');
-        
-        if (error) {
-          throw error;
-        }
-        
-        if (!isAdminData) {
-          toast.error("You do not have admin privileges");
+        if (!isAuthenticated) {
+          toast.error("Please login to access admin area");
           navigate("/admin");
           return;
         }
