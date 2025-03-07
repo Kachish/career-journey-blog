@@ -35,8 +35,15 @@ const BlogPost = () => {
           setPost(currentPost);
           
           // Get related posts (excluding current post)
+          // Only show posts older than 24 hours as related posts
+          const now = new Date();
+          const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+          
           const related = posts
-            .filter(p => p.id !== currentPost.id)
+            .filter(p => {
+              const postDate = new Date(p.date);
+              return p.id !== currentPost.id && postDate < twentyFourHoursAgo;
+            })
             .slice(0, 3);
             
           setRelatedPosts(related);
@@ -120,12 +127,12 @@ const BlogPost = () => {
             <div className="flex items-center justify-between mb-8 text-sm">
               <div className="flex items-center">
                 <img
-                  src={post.author_avatar}
-                  alt={post.author_name}
+                  src="/omar.jpg"
+                  alt="Omar"
                   className="w-10 h-10 rounded-full mr-3"
                 />
                 <div>
-                  <span className="font-medium block">{post.author_name}</span>
+                  <span className="font-medium block">Omar</span>
                   <div className="flex items-center text-muted-foreground">
                     <Calendar className="h-3 w-3 mr-1" />
                     <span>{formattedDate}</span>
@@ -150,12 +157,12 @@ const BlogPost = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <img
-                    src={post.author_avatar}
-                    alt={post.author_name}
+                    src="/omar.jpg"
+                    alt="Omar"
                     className="w-12 h-12 rounded-full mr-4"
                   />
                   <div>
-                    <span className="font-medium block">Written by {post.author_name}</span>
+                    <span className="font-medium block">Written by Omar</span>
                     <p className="text-sm text-muted-foreground">
                       Professional writer and career advisor with 10+ years of experience.
                     </p>
@@ -170,11 +177,11 @@ const BlogPost = () => {
         </div>
       </section>
       
-      {/* Related Posts Section */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto">
-          <h2 className="text-2xl md:text-3xl font-display font-medium mb-8">Related Articles</h2>
-          {relatedPosts.length > 0 ? (
+      {/* Related Posts Section - Only shown if there are posts older than 24 hours */}
+      {relatedPosts.length > 0 && (
+        <section className="py-16 px-4">
+          <div className="container mx-auto">
+            <h2 className="text-2xl md:text-3xl font-display font-medium mb-8">Related Articles</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
               {relatedPosts.map((relatedPost, index) => (
                 <PostCard 
@@ -190,8 +197,8 @@ const BlogPost = () => {
                       day: 'numeric'
                     }),
                     author: {
-                      name: relatedPost.author_name,
-                      avatar: relatedPost.author_avatar
+                      name: "Omar",
+                      avatar: "/omar.jpg"
                     },
                     slug: relatedPost.slug
                   }}
@@ -199,11 +206,9 @@ const BlogPost = () => {
                 />
               ))}
             </div>
-          ) : (
-            <p className="text-center text-muted-foreground">No related articles found.</p>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
     </Layout>
   );
 };

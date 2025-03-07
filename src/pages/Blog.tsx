@@ -36,7 +36,11 @@ const Blog = () => {
         
         // Set the first post as featured if available
         if (fetchedPosts.length > 0) {
-          setFeaturedPost(fetchedPosts[0]);
+          // Sort posts by date (newest first) and set the newest as featured
+          const sortedPosts = [...fetchedPosts].sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          );
+          setFeaturedPost(sortedPosts[0]);
         }
       } catch (error) {
         console.error("Error loading posts:", error);
@@ -80,15 +84,9 @@ const Blog = () => {
 
           <div className="flex justify-end mb-8 gap-4">
             <Button asChild variant="outline" size="sm">
-              <Link to="/blog/manage">
+              <Link to="/admin">
                 <Settings className="mr-2 h-4 w-4" />
-                Manage Blog
-              </Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link to="/blog/new">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                New Post
+                Admin Login
               </Link>
             </Button>
           </div>
@@ -108,20 +106,21 @@ const Blog = () => {
               }),
               author: {
                 name: featuredPost.author_name,
-                avatar: featuredPost.author_avatar
+                avatar: "/omar.jpg"  // Use Omar's photo from public folder
               },
+              category: featuredPost.category,
               slug: featuredPost.slug
             }} />
           ) : (
             <div className="bg-muted/30 rounded-xl p-8 text-center">
               <h2 className="text-2xl font-display font-medium mb-4">No blog posts yet</h2>
               <p className="text-muted-foreground mb-6">
-                Start creating blog posts by clicking the "New Post" button above.
+                Start creating blog posts by logging in as an administrator.
               </p>
               <Button asChild>
-                <Link to="/blog/new">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Create First Post
+                <Link to="/admin">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Admin Login
                 </Link>
               </Button>
             </div>
@@ -170,52 +169,13 @@ const Blog = () => {
             <div className="text-center py-8">
               {!isLoading && (
                 <p className="text-muted-foreground">
-                  No blog posts available. Create your first post to get started.
+                  No blog posts available. Create your first post by logging in as an administrator.
                 </p>
               )}
             </div>
           )}
 
-          {filteredPosts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {filteredPosts.map((post, index) => (
-                <PostCard 
-                  key={post.id} 
-                  post={{
-                    id: post.id,
-                    title: post.title,
-                    excerpt: post.excerpt,
-                    coverImage: post.cover_image,
-                    date: new Date(post.date).toLocaleDateString('en-US', {
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric'
-                    }),
-                    author: {
-                      name: post.author_name,
-                      avatar: post.author_avatar
-                    },
-                    slug: post.slug
-                  }} 
-                  index={index} 
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16">
-              {!isLoading && posts.length > 0 && (
-                <>
-                  <h3 className="text-xl mb-4">No articles found</h3>
-                  <p className="text-muted-foreground mb-6">
-                    Try adjusting your search to find what you're looking for.
-                  </p>
-                  <Button asChild variant="outline">
-                    <Link to="/blog">View All Articles</Link>
-                  </Button>
-                </>
-              )}
-            </div>
-          )}
+          {/* Removed Recent Articles section as requested */}
         </div>
       </section>
     </Layout>

@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Layout from "@/components/Layout";
+import AdminAuthWrapper from "@/components/AdminAuthWrapper";
 import { toast } from "sonner";
 import { createPost, updatePost, getPostById } from "@/services/postService";
 
@@ -23,8 +24,9 @@ const BlogEditor = () => {
     excerpt: "",
     content: "",
     coverImage: "",
-    authorName: "Admin User",
-    authorAvatar: "https://randomuser.me/api/portraits/men/1.jpg"
+    category: "",
+    authorName: "Omar",
+    authorAvatar: "/omar.jpg" // Use Omar's photo from public folder
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -42,8 +44,9 @@ const BlogEditor = () => {
               excerpt: post.excerpt,
               content: post.content,
               coverImage: post.cover_image,
-              authorName: post.author_name,
-              authorAvatar: post.author_avatar
+              category: post.category || "",
+              authorName: "Omar",
+              authorAvatar: "/omar.jpg"
             });
           } else {
             toast.error("Post not found");
@@ -110,6 +113,7 @@ const BlogEditor = () => {
           excerpt: formData.excerpt,
           content: formData.content,
           coverImage: formData.coverImage,
+          category: formData.category,
           author: {
             name: formData.authorName,
             avatar: formData.authorAvatar
@@ -129,6 +133,7 @@ const BlogEditor = () => {
           excerpt: formData.excerpt,
           content: formData.content,
           coverImage: formData.coverImage,
+          category: formData.category,
           author: {
             name: formData.authorName,
             avatar: formData.authorAvatar
@@ -152,119 +157,134 @@ const BlogEditor = () => {
 
   if (isLoading) {
     return (
-      <Layout>
-        <div className="container mx-auto py-12 px-4 text-center">
-          Loading post details...
-        </div>
-      </Layout>
+      <AdminAuthWrapper>
+        <Layout>
+          <div className="container mx-auto py-12 px-4 text-center">
+            Loading post details...
+          </div>
+        </Layout>
+      </AdminAuthWrapper>
     );
   }
 
   return (
-    <Layout>
-      <div className="container mx-auto py-12 px-4">
-        <div className="mb-8">
-          <Link
-            to="/blog/manage"
-            className="text-sm font-medium text-primary hover:underline flex items-center mb-4"
-          >
-            <ArrowLeft className="mr-1 h-4 w-4" />
-            Back to Blog Management
-          </Link>
-          <h1 className="text-3xl font-display font-medium">
-            {isEditMode ? "Edit Blog Post" : "Create New Blog Post"}
-          </h1>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="grid gap-6">
-                <div className="grid gap-3">
-                  <Label htmlFor="title">Title *</Label>
-                  <Input
-                    id="title"
-                    name="title"
-                    placeholder="Enter post title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-
-                <div className="grid gap-3">
-                  <Label htmlFor="slug">Slug *</Label>
-                  <Input
-                    id="slug"
-                    name="slug"
-                    placeholder="url-friendly-post-name"
-                    value={formData.slug}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-
-                <div className="grid gap-3">
-                  <Label htmlFor="excerpt">Excerpt *</Label>
-                  <Textarea
-                    id="excerpt"
-                    name="excerpt"
-                    placeholder="Brief summary of the post"
-                    value={formData.excerpt}
-                    onChange={handleInputChange}
-                    rows={2}
-                    required
-                  />
-                </div>
-
-                <div className="grid gap-3">
-                  <Label htmlFor="coverImage">Cover Image URL *</Label>
-                  <Input
-                    id="coverImage"
-                    name="coverImage"
-                    placeholder="https://example.com/image.jpg"
-                    value={formData.coverImage}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-
-                <Separator />
-
-                <div className="grid gap-3">
-                  <Label htmlFor="content">
-                    Post Content * <span className="text-xs text-muted-foreground">(Supports Markdown)</span>
-                  </Label>
-                  <Textarea
-                    id="content"
-                    name="content"
-                    placeholder="Write your blog post content here..."
-                    value={formData.content}
-                    onChange={handleInputChange}
-                    className="min-h-[300px]"
-                    required
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="flex justify-end gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate("/blog/manage")}
+    <AdminAuthWrapper>
+      <Layout>
+        <div className="container mx-auto py-12 px-4">
+          <div className="mb-8">
+            <Link
+              to="/blog/manage"
+              className="text-sm font-medium text-primary hover:underline flex items-center mb-4"
             >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSaving}>
-              <Save className="mr-2 h-4 w-4" />
-              {isSaving ? "Saving..." : "Save Post"}
-            </Button>
+              <ArrowLeft className="mr-1 h-4 w-4" />
+              Back to Blog Management
+            </Link>
+            <h1 className="text-3xl font-display font-medium">
+              {isEditMode ? "Edit Blog Post" : "Create New Blog Post"}
+            </h1>
           </div>
-        </form>
-      </div>
-    </Layout>
+
+          <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="grid gap-6">
+                  <div className="grid gap-3">
+                    <Label htmlFor="title">Title *</Label>
+                    <Input
+                      id="title"
+                      name="title"
+                      placeholder="Enter post title"
+                      value={formData.title}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-3">
+                    <Label htmlFor="slug">Slug *</Label>
+                    <Input
+                      id="slug"
+                      name="slug"
+                      placeholder="url-friendly-post-name"
+                      value={formData.slug}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-3">
+                    <Label htmlFor="category">Category</Label>
+                    <Input
+                      id="category"
+                      name="category"
+                      placeholder="Enter post category"
+                      value={formData.category}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+
+                  <div className="grid gap-3">
+                    <Label htmlFor="excerpt">Excerpt *</Label>
+                    <Textarea
+                      id="excerpt"
+                      name="excerpt"
+                      placeholder="Brief summary of the post"
+                      value={formData.excerpt}
+                      onChange={handleInputChange}
+                      rows={2}
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-3">
+                    <Label htmlFor="coverImage">Cover Image URL *</Label>
+                    <Input
+                      id="coverImage"
+                      name="coverImage"
+                      placeholder="https://example.com/image.jpg"
+                      value={formData.coverImage}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+
+                  <Separator />
+
+                  <div className="grid gap-3">
+                    <Label htmlFor="content">
+                      Post Content * <span className="text-xs text-muted-foreground">(Supports Markdown)</span>
+                    </Label>
+                    <Textarea
+                      id="content"
+                      name="content"
+                      placeholder="Write your blog post content here..."
+                      value={formData.content}
+                      onChange={handleInputChange}
+                      className="min-h-[300px]"
+                      required
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="flex justify-end gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate("/blog/manage")}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSaving}>
+                <Save className="mr-2 h-4 w-4" />
+                {isSaving ? "Saving..." : "Save Post"}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </Layout>
+    </AdminAuthWrapper>
   );
 };
 
