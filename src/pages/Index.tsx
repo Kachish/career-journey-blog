@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 
 import Layout from "@/components/Layout";
 import FeaturedPost from "@/components/FeaturedPost";
-import PostCard from "@/components/PostCard";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import { posts, getAllCategories } from "@/data/posts";
 
@@ -17,7 +16,6 @@ const Index = () => {
   }, []);
 
   const featuredPost = posts[0];
-  const recentPosts = posts.slice(1, 4);
   const categories = getAllCategories();
 
   return (
@@ -54,27 +52,6 @@ const Index = () => {
         <div className="container mx-auto">
           <h2 className="text-2xl md:text-3xl font-display font-medium mb-8">Featured Article</h2>
           <FeaturedPost post={featuredPost} priority={true} />
-        </div>
-      </section>
-
-      {/* Recent Posts Section */}
-      <section className="py-12 md:py-16 bg-secondary/30 px-4">
-        <div className="container mx-auto">
-          <div className="flex justify-between items-end mb-8">
-            <h2 className="text-2xl md:text-3xl font-display font-medium">Recent Articles</h2>
-            <Link 
-              to="/blog" 
-              className="link-underline text-primary font-medium flex items-center gap-1 group"
-            >
-              View All
-              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {recentPosts.map((post, index) => (
-              <PostCard key={post.id} post={post} index={index} />
-            ))}
-          </div>
         </div>
       </section>
 
@@ -134,7 +111,7 @@ const Index = () => {
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-primary/5 rounded-2xl transform rotate-3"></div>
               <img 
-                src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80" 
+                src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1171&q=80" 
                 alt="Professional working" 
                 className="rounded-2xl relative z-10 shadow-lg"
               />

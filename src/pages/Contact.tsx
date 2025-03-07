@@ -114,8 +114,8 @@ const Contact = () => {
                   <div>
                     <h4 className="font-medium mb-1">Address</h4>
                     <p className="text-muted-foreground">
-                      1234 Professional Way<br />
-                      San Francisco, CA 94103
+                      80114 Mombasa<br />
+                      Kenya
                     </p>
                   </div>
                 </div>
@@ -125,8 +125,7 @@ const Contact = () => {
                   <div>
                     <h4 className="font-medium mb-1">Email</h4>
                     <p className="text-muted-foreground">
-                      contact@careercanvas.com<br />
-                      support@careercanvas.com
+                      omaryw003@gmail.com
                     </p>
                   </div>
                 </div>
@@ -136,8 +135,8 @@ const Contact = () => {
                   <div>
                     <h4 className="font-medium mb-1">Phone</h4>
                     <p className="text-muted-foreground">
-                      +1 (555) 123-4567<br />
-                      Monday-Friday, 9am-5pm PST
+                      +254725409996<br />
+                      Monday-Friday, 9am-5pm
                     </p>
                   </div>
                 </div>

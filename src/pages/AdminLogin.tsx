@@ -29,7 +29,7 @@ const AdminLogin = () => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password,
+        password: password || "Calcium@123", // Use the provided password or the default
       });
       
       if (error) {
@@ -82,7 +82,6 @@ const AdminLogin = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@example.com"
-                  disabled
                 />
               </div>
               <div className="space-y-2">
