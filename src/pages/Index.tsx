@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,16 +7,72 @@ import { Button } from "@/components/ui/button";
 import Layout from "@/components/Layout";
 import FeaturedPost from "@/components/FeaturedPost";
 import NewsletterSignup from "@/components/NewsletterSignup";
-import { posts, getAllCategories } from "@/data/posts";
+import { getAllCategories } from "@/data/posts";
+import { getAllPosts } from "@/services/postService";
 
 const Index = () => {
+  const [featuredPost, setFeaturedPost] = useState<any>(null);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   // Scroll to top on page load
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const featuredPost = posts[0];
-  const categories = getAllCategories();
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        // Get all posts from the database
+        const posts = await getAllPosts();
+        
+        if (posts && posts.length > 0) {
+          // Sort posts by date (newest first) and use the first one as featured
+          const sortedPosts = [...posts].sort((a, b) => 
+            new Date(b.date).getTime() - new Date(a.date).getTime()
+          );
+          
+          // Format the featured post for the FeaturedPost component
+          const formattedFeaturedPost = {
+            id: sortedPosts[0].id,
+            title: sortedPosts[0].title,
+            excerpt: sortedPosts[0].excerpt,
+            coverImage: sortedPosts[0].cover_image,
+            date: new Date(sortedPosts[0].date).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            }),
+            author: {
+              name: sortedPosts[0].author_name,
+              avatar: sortedPosts[0].author_avatar || "/omar.jpg"
+            },
+            category: sortedPosts[0].category,
+            slug: sortedPosts[0].slug
+          };
+          
+          setFeaturedPost(formattedFeaturedPost);
+          
+          // Extract all categories from posts
+          const allCategories = posts.map(post => post.category).filter(Boolean);
+          const uniqueCategories = [...new Set(allCategories)];
+          setCategories(uniqueCategories);
+        } else {
+          // Fallback to local data if no posts
+          setCategories(getAllCategories());
+        }
+      } catch (error) {
+        console.error("Error loading data:", error);
+        // Fallback to local data
+        setCategories(getAllCategories());
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadData();
+  }, []);
 
   return (
     <Layout>
@@ -51,7 +107,17 @@ const Index = () => {
       <section className="py-12 md:py-16 px-4">
         <div className="container mx-auto">
           <h2 className="text-2xl md:text-3xl font-display font-medium mb-8">Featured Article</h2>
-          <FeaturedPost post={featuredPost} priority={true} />
+          {isLoading ? (
+            <div className="rounded-xl bg-gray-100 aspect-[2/1] animate-pulse flex items-center justify-center">
+              <p className="text-muted-foreground">Loading featured post...</p>
+            </div>
+          ) : featuredPost ? (
+            <FeaturedPost post={featuredPost} priority={true} />
+          ) : (
+            <div className="rounded-xl bg-gray-100 aspect-[2/1] flex items-center justify-center">
+              <p className="text-muted-foreground">No featured posts available</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -73,7 +139,7 @@ const Index = () => {
                   {category}
                 </h3>
                 <p className="text-muted-foreground mt-2">
-                  {posts.filter(post => post.category === category).length} Articles
+                  Explore Articles
                 </p>
               </Link>
             ))}

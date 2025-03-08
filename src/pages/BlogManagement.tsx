@@ -60,6 +60,26 @@ const BlogManagement = () => {
     if (!postToDelete) return;
     
     try {
+      // First delete all comments and interactions for this post
+      const { error: commentsError } = await supabase
+        .from('comments')
+        .delete()
+        .eq('post_id', postToDelete);
+        
+      if (commentsError) {
+        console.error("Error deleting comments:", commentsError);
+      }
+      
+      const { error: interactionsError } = await supabase
+        .from('post_interactions')
+        .delete()
+        .eq('post_id', postToDelete);
+        
+      if (interactionsError) {
+        console.error("Error deleting interactions:", interactionsError);
+      }
+      
+      // Then delete the post
       const success = await deletePost(postToDelete);
       if (success) {
         setPosts(posts.filter(post => post.id !== postToDelete));

@@ -81,6 +81,20 @@ export async function addInteraction(postId: string, type: 'like' | 'love' | 'in
   // Ensure we're using a valid UUID for the database
   const validPostId = ensureValidUuid(postId);
   
+  // Check if this visitor has already interacted with this post
+  if (name) {
+    const { data } = await supabase
+      .from('post_interactions')
+      .select('id')
+      .eq('post_id', validPostId)
+      .eq('name', name);
+      
+    if (data && data.length > 0) {
+      // User already interacted with this post
+      return false;
+    }
+  }
+  
   const { error } = await supabase
     .from('post_interactions')
     .insert([{ post_id: validPostId, type, name }]);
@@ -136,6 +150,10 @@ export async function createPost(post: {
 }): Promise<string | null> {
   const id = uuidv4();
   
+  // Set this post as featured by updating its date to the latest
+  const date = new Date().toISOString();
+  
+  // First, insert the new post
   const { error } = await supabase
     .from('posts')
     .insert([{
@@ -148,7 +166,7 @@ export async function createPost(post: {
       category: post.category,
       author_name: post.author.name,
       author_avatar: post.author.avatar,
-      date: new Date().toISOString()
+      date: date
     }]);
   
   if (error) {

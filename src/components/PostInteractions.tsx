@@ -50,6 +50,8 @@ const PostInteractions = ({ postId }: PostInteractionsProps) => {
     insightful: 0,
     celebrate: 0
   });
+  const [userInteracted, setUserInteracted] = useState<boolean>(false);
+  const [userInteractionType, setUserInteractionType] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -57,6 +59,21 @@ const PostInteractions = ({ postId }: PostInteractionsProps) => {
       try {
         const counts = await getPostInteractions(postId);
         setInteractions(counts);
+        
+        // Check if user has already interacted with this post
+        const visitorId = localStorage.getItem('visitorId') || generateVisitorId();
+        
+        const { data, error } = await supabase
+          .from('post_interactions')
+          .select('type')
+          .eq('post_id', postId)
+          .eq('name', visitorId)
+          .single();
+          
+        if (data) {
+          setUserInteracted(true);
+          setUserInteractionType(data.type);
+        }
       } catch (error) {
         console.error("Error loading interactions:", error);
       } finally {
@@ -67,15 +84,32 @@ const PostInteractions = ({ postId }: PostInteractionsProps) => {
     loadInteractions();
   }, [postId]);
 
+  const generateVisitorId = () => {
+    const id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    localStorage.setItem('visitorId', id);
+    return id;
+  };
+
   const handleInteraction = async (type: 'like' | 'love' | 'insightful' | 'celebrate') => {
+    // If user already interacted, don't allow another interaction
+    if (userInteracted) {
+      toast.info(`You've already ${userInteractionType}d this post`);
+      return;
+    }
+    
     try {
+      const visitorId = localStorage.getItem('visitorId') || generateVisitorId();
+      
       // Optimistically update the UI
       setInteractions(prev => ({
         ...prev,
         [type]: prev[type] + 1
       }));
       
-      const success = await addInteraction(postId, type);
+      setUserInteracted(true);
+      setUserInteractionType(type);
+      
+      const success = await addInteraction(postId, type, visitorId);
       
       if (!success) {
         // Revert the optimistic update
@@ -83,6 +117,8 @@ const PostInteractions = ({ postId }: PostInteractionsProps) => {
           ...prev,
           [type]: prev[type] - 1
         }));
+        setUserInteracted(false);
+        setUserInteractionType(null);
         toast.error(`Failed to add ${type}. Please try again.`);
       }
     } catch (error) {
@@ -103,7 +139,8 @@ const PostInteractions = ({ postId }: PostInteractionsProps) => {
           variant="outline"
           size="sm"
           onClick={() => handleInteraction(interaction.type)}
-          className={`${interaction.color} border-none`}
+          className={`${interaction.color} border-none ${userInteractionType === interaction.type ? 'ring-2 ring-offset-2 ring-primary' : ''}`}
+          disabled={userInteracted && userInteractionType !== interaction.type}
         >
           {interaction.icon}
           <span className="ml-1">{interactions[interaction.type]}</span>
