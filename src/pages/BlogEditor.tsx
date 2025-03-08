@@ -45,8 +45,8 @@ const BlogEditor = () => {
               content: post.content,
               coverImage: post.cover_image,
               category: post.category || "",
-              authorName: "Omar",
-              authorAvatar: "/omar.jpg"
+              authorName: post.author_name || "Omar",
+              authorAvatar: post.author_avatar || "/omar.jpg"
             });
           } else {
             toast.error("Post not found");
@@ -144,7 +144,7 @@ const BlogEditor = () => {
           toast.success("Blog post created successfully");
           navigate(`/blog/${formData.slug}`);
         } else {
-          toast.error("Failed to create blog post");
+          toast.error("Failed to create blog post. Check console for details.");
         }
       }
     } catch (error) {

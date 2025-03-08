@@ -68,12 +68,11 @@ const PostInteractions = ({ postId }: PostInteractionsProps) => {
           .from('post_interactions')
           .select('type')
           .eq('post_id', postId)
-          .eq('name', visitorId)
-          .single();
+          .eq('name', visitorId);
           
-        if (data) {
+        if (data && data.length > 0) {
           setUserInteracted(true);
-          setUserInteractionType(data.type);
+          setUserInteractionType(data[0].type);
         }
       } catch (error) {
         console.error("Error loading interactions:", error);

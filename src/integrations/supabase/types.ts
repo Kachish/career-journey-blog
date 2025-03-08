@@ -98,6 +98,7 @@ export type Database = {
         Row: {
           author_avatar: string
           author_name: string
+          category: string | null
           content: string
           cover_image: string
           date: string | null
@@ -107,8 +108,9 @@ export type Database = {
           title: string
         }
         Insert: {
-          author_avatar: string
-          author_name: string
+          author_avatar?: string
+          author_name?: string
+          category?: string | null
           content: string
           cover_image: string
           date?: string | null
@@ -120,6 +122,7 @@ export type Database = {
         Update: {
           author_avatar?: string
           author_name?: string
+          category?: string | null
           content?: string
           cover_image?: string
           date?: string | null

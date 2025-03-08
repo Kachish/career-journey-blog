@@ -129,7 +129,7 @@ export async function getPostById(id: string): Promise<any | null> {
     .from('posts')
     .select('*')
     .eq('id', validId)
-    .single();
+    .maybeSingle();
   
   if (error) {
     console.error('Error fetching post by ID:', error);
@@ -148,33 +148,39 @@ export async function createPost(post: {
   category?: string;
   author: { name: string; avatar: string };
 }): Promise<string | null> {
-  const id = uuidv4();
-  
-  // Set this post as featured by updating its date to the latest
-  const date = new Date().toISOString();
-  
-  // First, insert the new post
-  const { error } = await supabase
-    .from('posts')
-    .insert([{
-      id,
-      title: post.title,
-      slug: post.slug,
-      excerpt: post.excerpt,
-      content: post.content,
-      cover_image: post.coverImage,
-      category: post.category,
-      author_name: post.author.name,
-      author_avatar: post.author.avatar,
-      date: date
-    }]);
-  
-  if (error) {
-    console.error('Error creating post:', error);
+  try {
+    const id = uuidv4();
+    
+    // Set this post as featured by updating its date to the latest
+    const date = new Date().toISOString();
+    
+    // First, insert the new post
+    const { data, error } = await supabase
+      .from('posts')
+      .insert([{
+        id,
+        title: post.title,
+        slug: post.slug,
+        excerpt: post.excerpt,
+        content: post.content,
+        cover_image: post.coverImage,
+        category: post.category || null,
+        author_name: post.author.name,
+        author_avatar: post.author.avatar,
+        date: date
+      }])
+      .select();
+    
+    if (error) {
+      console.error('Error creating post:', error);
+      return null;
+    }
+    
+    return id;
+  } catch (error) {
+    console.error('Error in createPost function:', error);
     return null;
   }
-  
-  return id;
 }
 
 export async function updatePost(id: string, post: {
@@ -186,47 +192,78 @@ export async function updatePost(id: string, post: {
   category?: string;
   author?: { name: string; avatar: string };
 }): Promise<boolean> {
-  const validId = ensureValidUuid(id);
-  
-  const updateData: any = {};
-  if (post.title) updateData.title = post.title;
-  if (post.slug) updateData.slug = post.slug;
-  if (post.excerpt) updateData.excerpt = post.excerpt;
-  if (post.content) updateData.content = post.content;
-  if (post.coverImage) updateData.cover_image = post.coverImage;
-  if (post.category !== undefined) updateData.category = post.category;
-  if (post.author) {
-    updateData.author_name = post.author.name;
-    updateData.author_avatar = post.author.avatar;
-  }
-  
-  const { error } = await supabase
-    .from('posts')
-    .update(updateData)
-    .eq('id', validId);
-  
-  if (error) {
-    console.error('Error updating post:', error);
+  try {
+    const validId = ensureValidUuid(id);
+    
+    const updateData: any = {};
+    if (post.title) updateData.title = post.title;
+    if (post.slug) updateData.slug = post.slug;
+    if (post.excerpt) updateData.excerpt = post.excerpt;
+    if (post.content) updateData.content = post.content;
+    if (post.coverImage) updateData.cover_image = post.coverImage;
+    if (post.category !== undefined) updateData.category = post.category;
+    if (post.author) {
+      updateData.author_name = post.author.name;
+      updateData.author_avatar = post.author.avatar;
+    }
+    
+    const { error } = await supabase
+      .from('posts')
+      .update(updateData)
+      .eq('id', validId);
+    
+    if (error) {
+      console.error('Error updating post:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in updatePost function:', error);
     return false;
   }
-  
-  return true;
 }
 
 export async function deletePost(id: string): Promise<boolean> {
-  const validId = ensureValidUuid(id);
-  
-  const { error } = await supabase
-    .from('posts')
-    .delete()
-    .eq('id', validId);
-  
-  if (error) {
-    console.error('Error deleting post:', error);
+  try {
+    const validId = ensureValidUuid(id);
+    
+    // Delete related comments
+    const { error: commentsError } = await supabase
+      .from('comments')
+      .delete()
+      .eq('post_id', validId);
+    
+    if (commentsError) {
+      console.error('Error deleting comments:', commentsError);
+    }
+    
+    // Delete related interactions
+    const { error: interactionsError } = await supabase
+      .from('post_interactions')
+      .delete()
+      .eq('post_id', validId);
+    
+    if (interactionsError) {
+      console.error('Error deleting interactions:', interactionsError);
+    }
+    
+    // Delete the post
+    const { error } = await supabase
+      .from('posts')
+      .delete()
+      .eq('id', validId);
+    
+    if (error) {
+      console.error('Error deleting post:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in deletePost function:', error);
     return false;
   }
-  
-  return true;
 }
 
 // Helper function to ensure we have a valid UUID
