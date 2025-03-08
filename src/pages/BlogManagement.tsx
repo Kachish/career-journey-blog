@@ -60,6 +60,8 @@ const BlogManagement = () => {
     if (!postToDelete) return;
     
     try {
+      toast.info("Deleting post...");
+      
       // First delete all comments and interactions for this post
       const { error: commentsError } = await supabase
         .from('comments')
