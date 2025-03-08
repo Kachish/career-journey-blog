@@ -9,7 +9,6 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import BlogManagement from "./pages/BlogManagement";
 import BlogEditor from "./pages/BlogEditor";
-import AdminLogin from "./pages/AdminLogin";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
@@ -26,7 +25,6 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
-          <Route path="/admin" element={<AdminLogin />} />
           <Route path="/blog/manage" element={<BlogManagement />} />
           <Route path="/blog/new" element={<BlogEditor />} />
           <Route path="/blog/edit/:postId" element={<BlogEditor />} />
