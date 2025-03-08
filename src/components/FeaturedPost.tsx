@@ -14,7 +14,7 @@ interface FeaturedPostProps {
       name: string;
       avatar: string;
     };
-    category?: string; // Make category optional
+    category: string;
     slug: string;
   };
   priority?: boolean;
@@ -37,13 +37,11 @@ const FeaturedPost = ({ post, priority = false }: FeaturedPostProps) => {
       </Link>
       
       <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-        {post.category && (
-          <div className="flex items-center space-x-2 mb-2">
-            <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm">
-              {post.category}
-            </span>
-          </div>
-        )}
+        <div className="flex items-center space-x-2 mb-2">
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm">
+            {post.category}
+          </span>
+        </div>
         
         <h2 className="text-2xl md:text-3xl font-display font-medium mb-2 group-hover:underline decoration-1 underline-offset-2">
           {post.title}

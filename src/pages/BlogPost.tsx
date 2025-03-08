@@ -111,6 +111,8 @@ const BlogPost = () => {
                 <ArrowLeft className="mr-1 h-4 w-4" />
                 Back to Blog
               </Link>
+              <span className="mx-2 text-muted-foreground">|</span>
+              <span className="text-sm text-muted-foreground">{post.category}</span>
             </div>
             
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-medium mb-6">
@@ -193,6 +195,7 @@ const BlogPost = () => {
                       name: relatedPost.author_name,
                       avatar: relatedPost.author_avatar
                     },
+                    category: relatedPost.category,
                     slug: relatedPost.slug
                   }}
                   index={index} 

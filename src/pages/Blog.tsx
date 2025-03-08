@@ -12,6 +12,7 @@ import { getAllPosts } from "@/services/postService";
 
 const Blog = () => {
   const [searchParams] = useSearchParams();
+  const categoryParam = searchParams.get("category");
   const [searchTerm, setSearchTerm] = useState("");
   const [posts, setPosts] = useState<any[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<any[]>([]);
@@ -30,8 +31,7 @@ const Blog = () => {
         // Extract unique categories
         const uniqueCategories = Array.from(
           new Set(fetchedPosts.map(post => post.category))
-        ).filter(Boolean);
-        
+        );
         setCategories(uniqueCategories);
         
         // Set the first post as featured if available
@@ -48,21 +48,28 @@ const Blog = () => {
     loadPosts();
   }, []);
 
-  // Filter posts when search term changes
+  // Filter posts when category or search term changes
   useEffect(() => {
     let result = [...posts];
+    
+    if (categoryParam) {
+      result = result.filter(
+        (post) => post.category.toLowerCase() === categoryParam.toLowerCase()
+      );
+    }
     
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       result = result.filter(
         (post) => 
           post.title.toLowerCase().includes(term) || 
-          post.excerpt.toLowerCase().includes(term)
+          post.excerpt.toLowerCase().includes(term) ||
+          post.category.toLowerCase().includes(term)
       );
     }
     
     setFilteredPosts(result);
-  }, [searchTerm, posts]);
+  }, [searchTerm, categoryParam, posts]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -110,6 +117,7 @@ const Blog = () => {
                 name: featuredPost.author_name,
                 avatar: featuredPost.author_avatar
               },
+              category: featuredPost.category,
               slug: featuredPost.slug
             }} />
           ) : (
@@ -133,7 +141,7 @@ const Blog = () => {
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-display font-medium mb-4">
-              Blog
+              {categoryParam ? categoryParam : "Blog"}
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Insights and strategies to help you excel in your professional journey, whether you're building a career, freelancing, or developing your personal brand.
@@ -156,13 +164,29 @@ const Blog = () => {
               {categories.length > 0 && (
                 <div className="flex flex-wrap gap-2 justify-center">
                   <Button
-                    variant="default"
+                    variant={!categoryParam ? "default" : "outline"}
                     size="sm"
                     className="rounded-full"
                     asChild
                   >
                     <Link to="/blog">All Posts</Link>
                   </Button>
+                  
+                  {categories.map((category) => (
+                    <Button
+                      key={category}
+                      variant={
+                        categoryParam === category ? "default" : "outline"
+                      }
+                      size="sm"
+                      className="rounded-full"
+                      asChild
+                    >
+                      <Link to={`/blog?category=${encodeURIComponent(category)}`}>
+                        {category}
+                      </Link>
+                    </Button>
+                  ))}
                 </div>
               )}
             </div>
@@ -195,6 +219,7 @@ const Blog = () => {
                       name: post.author_name,
                       avatar: post.author_avatar
                     },
+                    category: post.category,
                     slug: post.slug
                   }} 
                   index={index} 
@@ -207,7 +232,7 @@ const Blog = () => {
                 <>
                   <h3 className="text-xl mb-4">No articles found</h3>
                   <p className="text-muted-foreground mb-6">
-                    Try adjusting your search to find what you're looking for.
+                    Try adjusting your search or filter to find what you're looking for.
                   </p>
                   <Button asChild variant="outline">
                     <Link to="/blog">View All Articles</Link>

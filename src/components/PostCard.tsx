@@ -14,6 +14,7 @@ interface PostCardProps {
       name: string;
       avatar: string;
     };
+    category: string;
     slug: string;
   };
   className?: string;
@@ -43,6 +44,9 @@ const PostCard = ({ post, className, index = 0 }: PostCardProps) => {
       
       <div className="flex flex-col flex-grow p-6">
         <div className="flex items-center mb-3">
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-secondary text-primary">
+            {post.category}
+          </span>
           <span className="ml-auto flex items-center text-xs text-muted-foreground">
             <Clock size={12} className="mr-1" />
             {post.date}

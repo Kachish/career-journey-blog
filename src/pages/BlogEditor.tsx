@@ -23,6 +23,7 @@ const BlogEditor = () => {
     excerpt: "",
     content: "",
     coverImage: "",
+    category: "",
     authorName: "Admin User",
     authorAvatar: "https://randomuser.me/api/portraits/men/1.jpg"
   });
@@ -42,6 +43,7 @@ const BlogEditor = () => {
               excerpt: post.excerpt,
               content: post.content,
               coverImage: post.cover_image,
+              category: post.category,
               authorName: post.author_name,
               authorAvatar: post.author_avatar
             });
@@ -95,7 +97,7 @@ const BlogEditor = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.title || !formData.slug || !formData.content || !formData.coverImage) {
+    if (!formData.title || !formData.slug || !formData.content || !formData.coverImage || !formData.category) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -110,6 +112,7 @@ const BlogEditor = () => {
           excerpt: formData.excerpt,
           content: formData.content,
           coverImage: formData.coverImage,
+          category: formData.category,
           author: {
             name: formData.authorName,
             avatar: formData.authorAvatar
@@ -129,6 +132,7 @@ const BlogEditor = () => {
           excerpt: formData.excerpt,
           content: formData.content,
           coverImage: formData.coverImage,
+          category: formData.category,
           author: {
             name: formData.authorName,
             avatar: formData.authorAvatar
@@ -224,6 +228,18 @@ const BlogEditor = () => {
                     name="coverImage"
                     placeholder="https://example.com/image.jpg"
                     value={formData.coverImage}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+
+                <div className="grid gap-3">
+                  <Label htmlFor="category">Category *</Label>
+                  <Input
+                    id="category"
+                    name="category"
+                    placeholder="e.g. Career Development, Freelancing"
+                    value={formData.category}
                     onChange={handleInputChange}
                     required
                   />

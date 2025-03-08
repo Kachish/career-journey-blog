@@ -93,6 +93,34 @@ export async function addInteraction(postId: string, type: 'like' | 'love' | 'in
   return true;
 }
 
+// Add function to sync local posts to Supabase
+export async function syncPostToSupabase(post: any): Promise<boolean> {
+  // Generate a proper UUID if the post doesn't have one
+  const postId = post.id && isValidUuid(post.id) ? post.id : uuidv4();
+  
+  const { error } = await supabase
+    .from('posts')
+    .upsert([{
+      id: postId,
+      title: post.title,
+      slug: post.slug,
+      excerpt: post.excerpt,
+      content: post.content,
+      cover_image: post.coverImage,
+      category: post.category,
+      author_name: post.author.name,
+      author_avatar: post.author.avatar,
+      date: new Date(post.date).toISOString()
+    }], { onConflict: 'slug' });
+  
+  if (error) {
+    console.error('Error syncing post:', error);
+    return false;
+  }
+  
+  return true;
+}
+
 // Add functions to fetch, create, update, and delete posts
 export async function getAllPosts(): Promise<any[]> {
   const { data, error } = await supabase
@@ -131,6 +159,7 @@ export async function createPost(post: {
   excerpt: string;
   content: string;
   coverImage: string;
+  category: string;
   author: { name: string; avatar: string };
 }): Promise<string | null> {
   const id = uuidv4();
@@ -144,6 +173,7 @@ export async function createPost(post: {
       excerpt: post.excerpt,
       content: post.content,
       cover_image: post.coverImage,
+      category: post.category,
       author_name: post.author.name,
       author_avatar: post.author.avatar,
       date: new Date().toISOString()
@@ -163,6 +193,7 @@ export async function updatePost(id: string, post: {
   excerpt?: string;
   content?: string;
   coverImage?: string;
+  category?: string;
   author?: { name: string; avatar: string };
 }): Promise<boolean> {
   const validId = ensureValidUuid(id);
@@ -173,6 +204,7 @@ export async function updatePost(id: string, post: {
   if (post.excerpt) updateData.excerpt = post.excerpt;
   if (post.content) updateData.content = post.content;
   if (post.coverImage) updateData.cover_image = post.coverImage;
+  if (post.category) updateData.category = post.category;
   if (post.author) {
     updateData.author_name = post.author.name;
     updateData.author_avatar = post.author.avatar;
